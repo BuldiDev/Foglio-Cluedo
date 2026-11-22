@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<title>Foglio Cluedo</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%94%8E%3C/text%3E%3C/svg%3E">
+<style>
+  :root {
+    --bg: #e9ebef;
+    --paper: #ffffff;
+    --ink: #5a6679;
+    --line: #6b778a;
+    --faint: #b9c0cb;
+    --out: #f0f1f4;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #121418;
+      --paper: #1c1f26;
+      --ink: #b4bdcc;
+      --line: #7c8799;
+      --faint: #4a5261;
+      --out: #252932;
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font: 16px/1.3 "Century Gothic", "Avenir Next", Avenir, Futura, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding: env(safe-area-inset-top) 0 calc(24px + env(safe-area-inset-bottom));
+  }
+  main {
+    max-width: 520px; margin: 0 auto;
+    background: var(--paper);
+    padding: 14px 12px 18px;
+    min-height: 100vh;
+  }
+  .top { display: flex; align-items: flex-end; gap: 8px; }
+  h1 {
+    flex: 1; margin: 0;
+    font-size: 2rem; line-height: 1; font-weight: 900;
+    letter-spacing: -.02em;
+  }
+  .btn {
+    font: inherit; font-size: .78rem; font-weight: 700;
+    border: 1.5px solid var(--line); background: none; color: var(--ink);
+    border-radius: 6px; padding: 7px 8px; cursor: pointer; white-space: nowrap;
+  }
+  .btn:active { transform: scale(.97); }
+
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  col.name { width: 40%; }
+
+  thead th {
+    position: sticky; top: 0; z-index: 3;
+    background: var(--paper); padding: 0;
+  }
+  thead tr.lbl th {
+    text-align: right; padding: 12px 6% 6px 0;
+    font-size: .8rem; font-weight: 700; letter-spacing: .22em;
+    position: static;
+  }
+  thead tr.inis th { height: 42px; border-bottom: 1.5px solid var(--line); }
+  thead tr.inis th + th { border: 1.5px solid var(--line); }
+  th.sec, td.sec {
+    text-align: left; padding: 0 0 0 20px;
+    font-size: 1.05rem; font-weight: 800; letter-spacing: .2em;
+  }
+  tr.gap td { height: 64px; vertical-align: bottom; padding-bottom: 8px; border-bottom: 1.5px solid var(--line); }
+  .ini {
+    display: block; width: 100%; height: 40px;
+    border: 0; background: none; color: var(--ink);
+    font: inherit; font-weight: 800; font-size: .95rem; cursor: pointer; padding: 0;
+  }
+  .ini.empty { color: var(--faint); font-weight: 400; }
+
+  tbody tr.row td { border-bottom: 1.5px solid var(--line); padding: 0; }
+  tbody tr.row td.mark { border-left: 1.5px solid var(--line); border-right: 1.5px solid var(--line); }
+  td button {
+    display: block; width: 100%; height: 40px;
+    border: 0; background: none; color: inherit;
+    font: inherit; cursor: pointer; padding: 0;
+  }
+  td.card button {
+    text-align: left; padding: 0 4px 0 6px;
+    font-size: .95rem; letter-spacing: .03em; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis;
+  }
+  tr.out td.card button { text-decoration: line-through; opacity: .55; }
+  tr.out td { background: var(--out); }
+  td.mark button { font-size: 1.3rem; font-weight: 700; line-height: 40px; font-family: system-ui, sans-serif; }
+  td.mark button:active { background: var(--out); }
+
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 4px 14px;
+    font-size: .78rem; padding: 16px 4px 0;
+  }
+  .legend b { font-size: 1rem; margin-right: 3px; font-family: system-ui, sans-serif; }
+  .notes { margin-top: 16px; }
+  .notes label {
+    display: block; font-size: .8rem; font-weight: 800; letter-spacing: .2em; padding: 0 4px 6px;
+  }
+  textarea {
+    width: 100%; min-height: 100px; resize: vertical;
+    background: var(--paper); color: var(--ink);
+    border: 1.5px solid var(--line); border-radius: 0;
+    padding: 8px; font: inherit;
+  }
+
+  dialog {
+    border: 0; border-radius: 10px; padding: 0;
+    background: var(--paper); color: var(--ink);
+    width: min(92vw, 360px); box-shadow: 0 10px 40px rgba(0, 0, 0, .4);
+  }
+  dialog::backdrop { background: rgba(0, 0, 0, .5); }
+  dialog form { padding: 16px; }
+  dialog h2 { margin: 0 0 4px; font-size: 1rem; font-weight: 800; letter-spacing: .2em; }
+  dialog p { margin: 0 0 12px; font-size: .82rem; }
+  .prow { display: flex; gap: 8px; margin-bottom: 6px; align-items: center; }
+  .prow span { width: 1.2em; text-align: right; font-weight: 700; font-size: .85rem; }
+  .prow input {
+    flex: 1; min-width: 0; font: inherit; padding: 8px 10px;
+    border: 1.5px solid var(--line); border-radius: 6px;
+    background: var(--paper); color: var(--ink);
+  }
+  .actions { display: flex; gap: 8px; margin-top: 14px; }
+  .actions button {
+    flex: 1; font: inherit; font-weight: 700; padding: 10px;
+    border-radius: 6px; border: 1.5px solid var(--line);
+    background: none; color: var(--ink); cursor: pointer;
+  }
+  .actions .primary { background: var(--line); color: var(--paper); }
+</style>
+</head>
+<body>
+<main>
+  <div class="top">
+    <h1>Foglio Cluedo</h1>
+    <button class="btn" id="btnPlayers">Nomi</button>
+    <button class="btn" id="btnNew">Nuovo</button>
+  </div>
+
+  <table id="grid"></table>
+
+  <div class="legend">
+    <span><b>✕</b>ce l'ha</span>
+    <span><b>?</b>forse</span>
+    <span>Tocca una casella per cambiare; tocca una carta per barrarla.</span>
+  </div>
+
+  <div class="notes">
+    <label for="notes">APPUNTI</label>
+    <textarea id="notes"></textarea>
+  </div>
+</main>
+
+<dialog id="dlg">
+  <form method="dialog" id="dlgForm">
+    <h2>INVESTIGATORI</h2>
+    <p>Scrivi i nomi: in cima al foglio compaiono le iniziali.</p>
+    <div id="plist"></div>
+    <div class="actions">
+      <button type="button" id="cancelP">Annulla</button>
+      <button type="submit" class="primary">Salva</button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+(() => {
+  const SECTIONS = [
+    ['CHI?', ['Green', 'Mustard', 'Peacock', 'Plum', 'Scarlett', 'White']],
+    ['COSA?', ['Candeliere', 'Pugnale', 'Tubo di piombo', 'Pistola', 'Corda', 'Chiave inglese']],
+    ['DOVE?', ['Sala da ballo', 'Sala del biliardo', 'Serra', 'Sala da pranzo', 'Ingresso', 'Cucina', 'Biblioteca', 'Salotto', 'Studio']],
+  ];
+  const COLS = 6;
+  const MARKS = ['', '✕', '?'];
+  const MARK_LABEL = ['vuota', 'ce l\'ha', 'forse'];
+  const ROW_CLASS = ['row', 'row out'];
+  const KEY = 'foglio-cluedo-v3';
+
+  let state = { names: Array(COLS).fill(''), marks: {}, rows: {}, notes: '' };
+  try {
+    const saved = JSON.parse(localStorage.getItem(KEY));
+    if (saved && Array.isArray(saved.names) && saved.names.length === COLS) state = Object.assign(state, saved);
+  } catch (e) {}
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} };
+
+  const grid = document.getElementById('grid');
+  const notes = document.getElementById('notes');
+  const dlg = document.getElementById('dlg');
+  const plist = document.getElementById('plist');
+
+  // Iniziali: una lettera; due se servono a distinguere ("An"/"Al"); più parole → "AM".
+  function initials(names) {
+    const base = names.map(n => {
+      const w = n.trim().split(/\s+/).filter(Boolean);
+      if (!w.length) return '';
+      return w.length > 1 ? w.map(x => x[0]).join('').slice(0, 3).toUpperCase() : w[0][0].toUpperCase();
+    });
+    const count = a => a.reduce((m, x) => (m[x] = (m[x] || 0) + 1, m), {});
+    let c = count(base);
+    const two = base.map((b, i) => {
+      if (!b || c[b] < 2) return b;
+      const n = names[i].trim().replace(/\s+/g, '');
+      return n.length > 1 ? n[0].toUpperCase() + n[1].toLowerCase() : b;
+    });
+    c = count(two);
+    const seen = {};
+    return two.map(b => !b || c[b] < 2 ? b : b + (seen[b] = (seen[b] || 0) + 1));
+  }
+
+  function el(tag, props, ...kids) {
+    const n = Object.assign(document.createElement(tag), props || {});
+    kids.forEach(k => n.append(k));
+    return n;
+  }
+
+  function render() {
+    grid.textContent = '';
+    const ini = initials(state.names);
+
+    const cg = el('colgroup', null, el('col', { className: 'name' }));
+    for (let i = 0; i < COLS; i++) cg.append(el('col'));
+    grid.append(cg);
+
+    const lbl = el('tr', { className: 'lbl' }, el('th', { colSpan: COLS + 1, textContent: 'INVESTIGATORI' }));
+    const hr = el('tr', { className: 'inis' }, el('th', { className: 'sec', textContent: SECTIONS[0][0] }));
+    state.names.forEach((name, i) => {
+      const b = el('button', {
+        className: 'ini' + (ini[i] ? '' : ' empty'), type: 'button',
+        textContent: ini[i] || '+', title: name || 'Aggiungi nome',
+      });
+      b.setAttribute('aria-label', name || 'Investigatore ' + (i + 1) + ': aggiungi nome');
+      b.onclick = () => openPlayers(i);
+      hr.append(el('th', null, b));
+    });
+    grid.append(el('thead', null, lbl, hr));
+
+    const tb = el('tbody');
+    SECTIONS.forEach(([title, cards], s) => {
+      if (s) tb.append(el('tr', { className: 'gap' }, el('td', { className: 'sec', colSpan: COLS + 1, textContent: title })));
+      cards.forEach((card, c) => {
+        const cid = s + '-' + c;
+        const tr = el('tr', { className: ROW_CLASS[state.rows[cid] === 1 ? 1 : 0] });
+        const nb = el('button', { type: 'button', textContent: card, title: card });
+        nb.onclick = () => {
+          const v = state.rows[cid] ? 0 : 1;
+          if (v) state.rows[cid] = v; else delete state.rows[cid];
+          tr.className = ROW_CLASS[v];
+          save();
+        };
+        tr.append(el('td', { className: 'card' }, nb));
+        for (let i = 0; i < COLS; i++) {
+          const k = cid + '|' + i;
+          const b = el('button', { type: 'button' });
+          const paint = () => {
+            const v = state.marks[k] || 0;
+            b.textContent = MARKS[v];
+            b.setAttribute('aria-label', card + ', ' + (state.names[i] || 'colonna ' + (i + 1)) + ': ' + MARK_LABEL[v]);
+          };
+          b.onclick = () => {
+            const v = ((state.marks[k] || 0) + 1) % 3;
+            if (v) state.marks[k] = v; else delete state.marks[k];
+            paint();
+            save();
+          };
+          paint();
+          tr.append(el('td', { className: 'mark' }, b));
+        }
+        tb.append(tr);
+      });
+    });
+    grid.append(tb);
+  }
+
+  function openPlayers(focus) {
+    plist.textContent = '';
+    state.names.forEach((name, i) => {
+      plist.append(el('div', { className: 'prow' },
+        el('span', { textContent: i + 1 }),
+        el('input', { value: name, placeholder: 'Nome', maxLength: 20, autocomplete: 'off' })));
+    });
+    dlg.showModal();
+    const inputs = plist.querySelectorAll('input');
+    (inputs[typeof focus === 'number' ? focus : 0] || inputs[0]).focus();
+  }
+  document.getElementById('cancelP').onclick = () => dlg.close();
+  document.getElementById('dlgForm').onsubmit = () => {
+    state.names = [...plist.querySelectorAll('input')].map(i => i.value.trim());
+    save();
+    render();
+  };
+
+  document.getElementById('btnPlayers').onclick = openPlayers;
+  document.getElementById('btnNew').onclick = () => {
+    if (!confirm('Cancellare tutti i segni e gli appunti? I nomi restano.')) return;
+    state.marks = {}; state.rows = {}; state.notes = '';
+    notes.value = '';
+    save();
+    render();
+  };
+
+  notes.value = state.notes || '';
+  notes.oninput = () => { state.notes = notes.value; save(); };
+
+  render();
+})();
+</script>
+</body>
+</html>
